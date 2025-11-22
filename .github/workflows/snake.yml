@@ -1,18 +1,24 @@
 name: Update GitHub Contribution Snake
 
+# Run every hour and allow manual trigger
 on:
   schedule:
-    - cron: '0 0 * * *' # daily at midnight UTC
-  workflow_dispatch:
+    - cron: '0 * * * *' # runs at the start of every hour
+  workflow_dispatch: # allows manual trigger
 
 jobs:
   update-snake:
     runs-on: ubuntu-latest
     steps:
+      # Checkout your repo
       - uses: actions/checkout@v3
+
+      # Generate the snake using Platane/snk
       - uses: Platane/snk@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Commit and push updated SVG
       - name: Commit updated snake
         run: |
           git config user.name "github-actions[bot]"
