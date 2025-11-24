@@ -1,31 +1,30 @@
 name: CI/CD - Build, Push, and Scan ECR Image with Versioned Tags
 
 on:
-  workflow_dispatch:   # Allows manual run
+  workflow_dispatch:
   push:
     branches:
-      - main          # Automatic run on push to main
+      - main
 
 env:
   AWS_REGION: us-east-1
   AWS_ACCOUNT_ID: 331086148274
-  IMAGE_NAME: roboshop-frontend
+  IMAGE_NAME: myprofile   # Single repo
 
 jobs:
   build-push-scan:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repository
+      # 1. Checkout repo
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      # 2. Set IMAGE_TAG based on first 7 characters of Git SHA
-      - name: Set Docker Image Tag
-        id: image_tag
+      # 2. Generate unique image tag from commit SHA
+      - name: Set Image Tag
         run: echo "IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
-      # 3. Configure AWS credentials using secrets
+      # 3. Configure AWS credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -33,39 +32,41 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # 4. Login to Amazon ECR
-      - name: Login to Amazon ECR
+      # 4. Login to ECR
+      - name: Login to ECR
         run: |
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
-          docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          docker login --username AWS --password-stdin \
+          ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
       # 5. Build Docker image
       - name: Build Docker Image
         run: |
           docker build -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
 
-      # 6. Tag Docker image for ECR
-      - name: Tag Docker Image for ECR
+      # 6. Tag image for ECR
+      - name: Tag Docker Image
         run: |
           docker tag ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
           ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
-      # 7. Push Docker image to ECR
-      - name: Push Docker Image to ECR
+      # 7. Push Docker image
+      - name: Push Docker Image
         run: |
-          docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker push \
+          ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
-      # 8. Install Trivy globally
+      # 8. Install Trivy
       - name: Install Trivy
         run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
-          trivy --version
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | \
+          sudo sh -s -- -b /usr/local/bin
 
-
-      # 9. Scan Docker image with Trivy
+      # 9. Scan Docker image
       - name: Scan Docker Image
         run: |
-          trivy image ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          trivy image \
+          ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       # 10. Generate JSON report
       - name: Generate JSON Report
@@ -73,7 +74,7 @@ jobs:
           trivy image -f json -o trivy-report.json \
           ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
-      # 11. Upload Trivy report as artifact
+      # 11. Upload report
       - name: Upload Trivy Report
         uses: actions/upload-artifact@v4
         with:
