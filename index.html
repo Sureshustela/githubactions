@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Suresh Ustela — DevOps Engineer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --muted: #94a3b8;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+    }
+    * { box-sizing: border-box; }
+    html,body {
+      margin: 0;
+      font-family: Inter, system-ui;
+      background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+      color: #e2e8f0;
+    }
+
+    /* Loader */
+    #loader {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .spinner {
+      width: 60px; height: 60px;
+      border: 6px solid rgba(255,255,255,0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Animated border wrapper */
+    .wrapper {
+      max-width: 1100px;
+      margin: 20px auto 60px auto;
+      padding: 20px;
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+    }
+    .wrapper:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      padding: 4px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2), #4f46e5);
+      background-size: 300% 300%;
+      animation: gradientMove 4s ease infinite;
+      z-index: -1;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .content {
+      background: rgba(255,255,255,0.03);
+      border-radius: 18px;
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.40);
+    }
+
+    /* Main Profile Container */
+    .profile-container {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      width: 100%;            /* full width */
+      max-width: 100%;        /* remove restriction */
+      margin: 0;              /* no auto centering */
+      padding: 20px;
+      border-radius: 0;       /* optional: remove rounding for full width */
+      background-color: #f0f0f0; /* optional background */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      flex-wrap: wrap;        /* stack on small screens */
+    }
+
+
+
+    /* Avatar */
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid white; /* optional border */
+      flex-shrink: 0;
+      background-color: #ddd;   /* fallback background */
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Profile Info */
+    .profile-info {
+      flex: 1;               /* take remaining space */
+    }
+
+    .profile-info h1 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      color: #000;
+    }
+
+    .profile-info .role {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #969595;
+    }
+
+    .profile-info .tagline {
+      line-height: 1.5;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .resume-btn {
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: #007bff;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: 600;
+    }
+
+    .resume-btn i {
+      margin-right: 5px;
+    }
+
+    /* Responsive: stack vertically on small screens */
+    @media (max-width: 600px) {
+      .profile-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .avatar {
+        margin-bottom: 15px;
+      }
+
+      .profile-info h1 {
+        font-size: 20px;
+      }
+    }
+    .social-links { display: flex; gap: 12px; margin-left: auto; }
+    .social-links a {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      text-decoration: none;
+      color: #e2e8f0;
+      transition: .2s;
+      font-weight: 600;
+    }
+	
+    .social-links a:hover { background: rgba(255,255,255,0.15); }
+
+    /* Sections */
+    .section {
+      margin-top: 32px;
+      background: rgba(255,255,255,0.03);
+      padding: 22px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .stack, .skills {
+      /* Neon Pulse Glow */
+    }
+
+    .skill {
+      position: relative;
+      transition: 0.4s ease-in-out;
+      filter: drop-shadow(0 0 0px #00eaff);
+      cursor: pointer;
+    }
+
+    .skill:hover {
+      transform: scale(1.15);
+      animation: neonPulse 1s infinite alternate;
+    }
+
+    @keyframes neonPulse {
+      from {
+        filter: drop-shadow(0 0 6px #00eaff)
+                drop-shadow(0 0 12px #00eaff)
+                drop-shadow(0 0 18px #00eaff);
+      }
+      to {
+        filter: drop-shadow(0 0 10px #00eaff)
+                drop-shadow(0 0 20px #00eaff)
+                drop-shadow(0 0 30px #00eaff);
+      }
+    }
+
+    .skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .chip, .skill {
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    /* Resume Button */
+    .resume-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 26px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .footer-icons { display: flex; justify-content: center; gap: 16px; margin-top: 10px; }
+    .footer-icons i { font-size: 20px; }
+
+    @media(max-width:800px){ .social-links{margin-left:0;} }
+
+    /* Neon Pulse Glow */
+    @keyframes neonPulse {
+      0% { box-shadow: 0 0 6px var(--accent2), 0 0 12px var(--accent); }
+      50% { box-shadow: 0 0 14px var(--accent2), 0 0 28px var(--accent); }
+      100% { box-shadow: 0 0 6px var(--accent2), 0 0 12px var(--accent); }
+    }
+    .chip:hover, .skill:hover, .social-links a:hover, .avatar:hover, .footer-icons i:hover {
+      animation: neonPulse 1.5s infinite;
+    }
+  </style>
+</head>
+<body>
+
+
+
+
+<!-- Loading Spinner -->
+<div id="loader"><div class="spinner"></div></div>
+
+<div class="wrapper">
+  <div class="content">
+
+<!-- Profile Container -->
+<div class="profile-container">
+  <!-- Profile Picture -->
+  <div class="avatar">
+    <img src="assets/profile.jpg" alt="Suresh Ustela">
+  </div>
+
+  <!-- Profile Info -->
+  <div class="profile-info">
+    <h1> <strong>Suresh Ustela</strong></h1>
+    <div class="role">DevOps Engineer @ HCLTech</div>
+    <div class="tagline">
+      🚀 DevOps Engineer | 10+ Years IT Experience (4+ in DevOps, 6 in Production Support) | AWS | Terraform | Jenkins | Docker | Kubernetes | CI/CD Automation
+    </div>
+    <a class="resume-btn" href="assets/Suresh_Ustela_DevOps_Engineer_Resume.pdf" download>
+      <i class="fa-solid fa-file-pdf"></i> Download Resume
+    </a>
+  </div>
+</div>
+
+
+<!-- Social Links (Optional Right-Aligned) -->
+<div class="social-links">
+    <a id="githubLink" href="https://github.com/Sureshustela" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+    <a id="linkedinLink" href="https://www.linkedin.com/in/suresh-ustela/" target="_blank"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+    <a href="mailto:usuresh123456@gmail.com"><i class="fa-solid fa-envelope"></i> Email</a>
+  </div>
+</div>
+
+    <!-- About -->
+    <div class="section">
+      <h2>About Me</h2>
+      <p>DevOps Engineer with 10+ years of IT experience, including 6 years as a Senior Technical Lead in production support. Expert in CI/CD automation, cloud infrastructure (AWS), containerization (Docker, Kubernetes), and monitoring tools (Prometheus, Grafana, ELK, CloudWatch).
+         Proven leader in incident management, process improvement, and high-availability architectures, driving system reliability and faster delivery. Skilled in designing, testing, and implementing infrastructure and applications with a focus on scalability and efficiency.
+
+        Strong team player and independent contributor with expertise in source control, bug fixing, and multitasking in complex environments. Bilingual professional with a track record of delivering impactful DevOps solutions..
+      </p>
+    </div>
+
+
+<!-- Career Snapshot Section -->
+<section id="career-snapshot">
+  <h2>💼 Career Snapshot</h2>
+
+  <div class="career-role">
+    <h3>🏢 HCLTech – <em>DevOps Engineer</em></h3>
+    <p style="color: #888; font-size: 0.9em; margin-top: 4px;">
+      03/2021 – Present
+    </p>
+    <ul>
+      <li>Built and managed CI/CD pipelines (Jenkins, GitLab, GitHub Actions).</li>
+      <li>Automated infra with Terraform, Ansible</li>
+      <li>Managed scalable deployments on AWS</li>
+      <li>Orchestrated containers with Docker & Kubernetes</li>
+      <li>Improved monitoring & alerting with Prometheus, Grafana, ELK, Cloud Watch.</li>
+      <li>Maintained version control systems like Git or SVN for seamless collaboration among developers and 	engineers during project lifecycles.</li>
+      <li>Designed and implemented containerization strategies using Docker and Kubernetes, improving resource utilization and management.</li>
+      <li>Monitored automated build and continuous software integration process to drive build/release failure resolution.</li>
+      
+    </ul>
+  </div>
+
+  <div class="career-role">
+    <h3>🏢 HCLTech – <em>Production Support Engineer</em></h3>
+    <p style="color: #888; font-size: 0.9em; margin-top: 4px;">
+      02/2015 – 02/2021
+    </p>
+    <ul>
+      <li>Led a 24x7 production support team, ensuring 99.9% uptime.</li>
+      <li>Managed incident, problem, and change management per ITIL.</li>
+      <li>Drove root cause analysis (RCA) and implemented permanent fixes.</li>
+      <li>Coordinated with cross-functional teams for fast resolution. Automated manual tasks through Python/Shell scripting, boosting team productivity.</li>
+      <li>Provided 24/7 on-call support for critical systems, ensuring high availability and rapid issue resolution.</li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Full-width container */
+  #career-snapshot {
+    width: 100%;
+    max-width: 1200px; /* keeps content readable */
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+  }
+
+  /* Heading aligned left */
+  #career-snapshot h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: left; /* aligns heading to left */
+  }
+
+  /* Each role */
+  .career-role {
+    margin-bottom: 30px;
+  }
+
+  .career-role h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+
+  .career-role p,
+  .career-role ul {
+    margin-bottom: 10px;
+  }
+
+  .career-role ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    #career-snapshot h2 {
+      font-size: 1.75rem;
+    }
+
+    .career-role h3 {
+      font-size: 1.25rem;
+    }
+  }
+
+</style>
+
+<style>
+
+  .skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  }
+
+  /* NEW: make icons visible on dark background */
+  .skills-icons a img {
+    background-color: white;
+    border-radius: 50%;
+    padding: 5px;
+  }
+</style>
+
+
+    <!-- Tech Stack -->
+    <div class="section">
+      <h2>🧰 Tech Stack</h2>
+      <ul>
+        <li><b>Cloud:</b> AWS</li>
+        <li><b>OS:</b> Linux, Windowse</li>
+        <li><b>CI/CD:</b> AWS DevOps, GitHub Actions, Jenkins</li>
+        <li><b>SCM:</b> GitHub</li> 
+        <li><b>IaC:</b> Terraform</li>
+        <li><b>Containers:</b> Docker, Kubernetes</li>
+        <li><b>Security & Scanning:</b> SonarQube</li>     
+        <li><b>Arifactory:</b> JFrog</li>     
+        <li><b>Scripting:</b> Bash, Shell, Python</li>     
+        <li><b>Monitoring:</b> Splunk, Dynatrace, Prometheus, Grafana, CloudWatch, Azure Monitor</li>  
+      </ul>
+    </div>
+
+
+
+
+    <!-- Skills -->
+    <div class="section">
+      <h2>⚙️ Skills Showcase</h2>
+      <div class="skills-icons" style="display:flex; gap:18px; flex-wrap:wrap; align-items:center;">
+        <a href="https://aws.amazon.com" target="_blank">
+          <img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/skills/aws-colored.svg" width="40" height="40" alt="AWS">
+        </a>
+        <a href="https://www.terraform.io/" target="_blank">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/terraform/terraform-original.svg" width="40" height="40" alt="Terraform">
+        </a>
+        <a href="https://www.ansible.com/" target="_blank">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ansible/ansible-original.svg" width="40" height="40" alt="Ansible">
+        </a>
+        <a href="https://www.jenkins.io/" target="_blank">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jenkins/jenkins-original.svg" width="40" height="40" alt="Jenkins">
+        </a>
+        <a href="https://www.docker.com/" target="_blank">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="40" height="40" alt="Docker">
+        </a>
+        <a href="https://kubernetes.io/" target="_blank">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg" width="40" height="40" alt="Kubernetes">
+        </a>
+        <a href="https://www.linux.org/" target="_blank">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="40" height="40" alt="Linux">
+        </a>
+        <a href="https://maven.apache.org/" target="_blank">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/maven/maven-original.svg" width="40" height="40" alt="Maven">
+        </a>
+        <a href="https://git-scm.com/" target="_blank">
+          <img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/skills/git-colored.svg" width="40" height="40" alt="Git">
+        </a>
+        <a href="https://code.visualstudio.com/" target="_blank">
+          <img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/skills/visualstudiocode.svg" width="40" height="40" alt="VS Code">
+        </a>
+      </div>
+    </div>
+
+    <footer>
+      <div>Made with ❤️ by Suresh Ustela</div>
+      <div class="footer-icons">
+        <i class="fa-brands fa-github"></i>
+        <i class="fa-brands fa-linkedin"></i>
+        <i class="fa-solid fa-envelope"></i>
+      </div>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+  // Hide loader after page loads
+  window.addEventListener('load', () => {
+    document.getElementById('loader').style.display = 'none';
+  });
+</script>
+
+<!-- Theme Toggle Button -->
+<button id="themeToggle" class="theme-toggle"><i class="fas fa-moon"></i></button>
+
+<!-- Typing Effect -->
+<script>
+  const typingText = ["DevOps Engineer", "AWS | Terraform | Jenkins", "Docker | Kubernetes | CI/CD", "10+ Years of IT Experience"]; 
+  let index = 0, charIndex = 0;
+  function typeEffect(){
+    const element = document.getElementById("typingText");
+    if(!element) return;
+    if(charIndex < typingText[index].length){
+      element.innerHTML += typingText[index].charAt(charIndex);
+      charIndex++;
+      setTimeout(typeEffect, 80);
+    } else {
+      setTimeout(() => {
+        element.innerHTML = "";
+        charIndex = 0;
+        index = (index + 1) % typingText.length;
+        typeEffect();
+      }, 1500);
+    }
+  }
+  document.addEventListener("DOMContentLoaded", typeEffect);
+</script>
+
+<!-- Smooth Scroll -->
+<script>
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+
+<!-- Dark / Light Theme Script -->
+<script>
+  const toggleBtn = document.getElementById('themeToggle');
+  toggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('light-theme');
+    toggleBtn.innerHTML = document.body.classList.contains('light-theme') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+  });
+</script>
+
+<!-- Animated Skill Bars -->
+<script>
+  const skillBars = document.querySelectorAll('.skill-bar-fill');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.style.width = entry.target.getAttribute('data-skill');
+      }
+    });
+  });
+  skillBars.forEach(bar => observer.observe(bar));
+</script>
+
+</body>
+</html>
